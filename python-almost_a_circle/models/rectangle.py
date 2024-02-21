@@ -22,7 +22,8 @@ class Rectangle(Base):
 
     def __str__(self):
         """Return a string that representing the class rectanhle"""
-        return "[Rectangle] ({}) {}/{} - {}/{}".format(self.id, self.x, self.y, self.width, self.height)
+        return "[Rectangle] ({}) {}/{} - {}/{}".format(
+                self.id, self.x, self.y, self.width, self.height)
 
     def display(self):
         """Print # to display the rectangle considering x and y"""
