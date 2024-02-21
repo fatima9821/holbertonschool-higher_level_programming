@@ -16,6 +16,17 @@ class Rectangle(Base):
         self.x = x
         self.y = y
 
+    def area(self):
+        """ calculate the area of rectangle """
+        return self.width * self.height
+
+    def display(self):
+        """Print # to display the rectangle considering x and y"""
+        for _ in range(self.y):
+            print()
+        for _ in range(self.height):
+            print(" " * self.x + "#" * self.width)
+
     @property
     def width(self):
         return self.__width
