@@ -32,6 +32,35 @@ class Rectangle(Base):
         for _ in range(self.height):
             print(" " * self.x + "#" * self.width)
 
+    def update(self, *args, **kwargs):
+        """ update attribute of the rectangle instance with key """
+        attributes = ["id", "width", "height", "x", "y"]
+        for i in range(len(args)):
+            setattr(self, attributes[i], args[i])
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def to_dictionary(self):
+        """
+        Returns a dictionary representation of the Rectangle.
+
+        Returns:
+            dict: A dictionary containing the attributes of the Rectangle.
+                Keys:
+                    - 'id' (int): The identifier of the Rectangle.
+                    - 'width' (int): The width of the Rectangle.
+                    - 'height' (int): The height of the Rectangle.
+                    - 'x' (int): The x-coordinate of the Rectangle.
+                    - 'y' (int): The y-coordinate of the Rectangle.
+        """
+        return {
+            'x': self.x,
+            'y': self.y,
+            'id': self.id,
+            'height': self.height,
+            'width': self.width,
+        }
+
     @property
     def width(self):
         return self.__width
