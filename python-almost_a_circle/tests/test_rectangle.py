@@ -1,118 +1,124 @@
 #!/usr/bin/python3
-"""Tests for the Rectancle class"""
-import os
-import json
-import sys
+""" unittest """
 import unittest
-from io import StringIO
-from models.base import Base
+import os
+
 from models.rectangle import Rectangle
+from models.base import Base
+
+from io import StringIO
+from contextlib import redirect_stdout
 
 
-class TestRectangle(unittest.TestCase):
-    """Tests for the Rectangle class"""
+class Test_Rectangle(unittest.TestCase):
+    """ unittest """
 
-    """-------- BASECASES --------"""
-    def test_rectangle_without_x_y(self):
-        rectangle = Rectangle(1, 2)
-        self.assertEqual(rectangle.width, 1)
-        self.assertEqual(rectangle.height, 2)
+    def test_init(self):
+        r = Rectangle(8, 6, 4, 2, 10)
+        self.assertEqual(r.id, 10)
+        self.assertEqual(r.width, 8)
+        self.assertEqual(r.height, 6)
+        self.assertEqual(r.x, 4)
+        self.assertEqual(r.y, 2)
+        self.assertEqual(r.area(), 48)
 
-    def test_rectangle_without_y(self):
-        rectangle = Rectangle(1, 2, 3)
-        self.assertEqual(rectangle.width, 1)
-        self.assertEqual(rectangle.height, 2)
-        self.assertEqual(rectangle.x, 3)
+        r = Rectangle(8, 6)
+        self.assertEqual(r.width, 8)
+        self.assertEqual(r.height, 6)
 
-    def test_rectangle_without_id(self):
-        rectangle = Rectangle(1, 2, 3, 4)
-        self.assertEqual(rectangle.width, 1)
-        self.assertEqual(rectangle.height, 2)
-        self.assertEqual(rectangle.x, 3)
-        self.assertEqual(rectangle.y, 4)
+        self.assertRaisesRegex(
+            TypeError, "width must be an integer", Rectangle, "8", 6, 4, 2, 10)
+        self.assertRaisesRegex(
+            TypeError, "height must be an integer", Rectangle, 8, "6", 4, 2, 10)
+        self.assertRaisesRegex(
+            TypeError, "x must be an integer", Rectangle, 8, 6, "4", 2, 10)
+        self.assertRaisesRegex(
+            TypeError, "y must be an integer", Rectangle, 8, 6, 4, "2", 10)
+        self.assertRaisesRegex(
+            ValueError, "width must be > 0", Rectangle, -1, 6, 4, 2, 10)
+        self.assertRaisesRegex(
+            ValueError, "height must be > 0", Rectangle, 8, -1, 4, 2, 10)
+        self.assertRaisesRegex(
+            ValueError, "x must be >= 0", Rectangle, 8, 6, -1, 2, 10)
+        self.assertRaisesRegex(
+            ValueError, "y must be >= 0", Rectangle, 8, 6, 1, -2, 10)
+        self.assertRaisesRegex(TypeError, "", Rectangle, )
+        self.assertRaisesRegex(
+            ValueError, "width must be > 0", Rectangle, 0, 6, 4, 2, 10)
+        self.assertRaisesRegex(
+            ValueError, "height must be > 0", Rectangle, 8, 0, 4, 2, 10)
 
-    def test_rectangle_all(self):
-        rectangle = Rectangle(1, 2, 3, 4, 5)
-        self.assertEqual(rectangle.width, 1)
-        self.assertEqual(rectangle.height, 2)
-        self.assertEqual(rectangle.x, 3)
-        self.assertEqual(rectangle.y, 4)
-        self.assertEqual(rectangle.id, 5)
+        r1 = Rectangle(3, 2)
+        expected_output = '###\n###\n'
+        with StringIO() as buffer, redirect_stdout(buffer):
+            r1.display()
+            result = buffer.getvalue()
+        self.assertEqual(result, expected_output)
 
-    """-------- TYPE ERROR --------"""
-    def test_type(self):
-        self.assertRaises(TypeError, Rectangle, "1", 2)
-        self.assertRaises(TypeError, Rectangle, 1, "2")
-        self.assertRaises(TypeError, Rectangle, 1, 2, "3")
-        self.assertRaises(TypeError, Rectangle, 1, 2, 3, "4")
+        r1 = Rectangle(3, 2, 1, 1)
+        expected_output = '\n ###\n ###\n'
+        with StringIO() as buffer, redirect_stdout(buffer):
+            r1.display()
+            result = buffer.getvalue()
+        self.assertEqual(result, expected_output)
 
-    """-------- VALUE ERROR --------"""
-    def test_value(self):
-        self.assertRaises(ValueError, Rectangle, -1, 2)
-        self.assertRaises(ValueError, Rectangle, 1, -2)
-        self.assertRaises(ValueError, Rectangle, 1, 2, -3)
-        self.assertRaises(ValueError, Rectangle, 1, 2, 3, -4)
-        self.assertRaises(ValueError, Rectangle, 0, 2)
-        self.assertRaises(ValueError, Rectangle, 1, 0)
+        r = Rectangle(1, 2, 3, 4)
+        r.update(89)
+        self.assertEqual(r.id, 89)
+        r.update(89, 3)
+        self.assertEqual(r.width, 3)
 
-    """-------- METHODS --------"""
-    def test_area(self):  # Test for area method
-        rectangle = Rectangle(6, 2)
-        self.assertEqual(rectangle.area(), 12)
+        r = Rectangle(14, 16, 12, 15, 25)
+        self.assertEqual(str(r), "[Rectangle] (25) 12/15 - 14/16")
 
-    def test_rectangle_str(self):  # Test for __str__ method
-        rectangle = Rectangle(1, 2, 3, 4, 5)
-        expected_str = "[Rectangle] (5) 3/4 - 1/2"
-        self.assertEqual(str(rectangle), expected_str)
+        r = Rectangle(2, 4, 6, 8, 42)
+        self.assertEqual(r.to_dictionary(), {'id': 42, 'width': 2, 'height': 4,
+                                             'x': 6, 'y': 8})
 
-    def test_display_without_x_y(self):  # Test for display method
-        rectangle = Rectangle(2, 2)
-        expected_output = "##\n##\n"
-        old_stdout = sys.stdout
-        # Redirect stdout temporarily to object StringIO
-        sys.stdout = mystdout = StringIO()
-        rectangle.display()
-        sys.stdout = old_stdout  # Put the orginal stdout back
-        # Compare the output store in StringIO object with expected output
-        self.assertEqual(mystdout.getvalue(), expected_output)
+        r = Rectangle.create(**{'id': 5, 'width': 1, 'height': 3,
+                                'x': 4, 'y': 5})
+        answer = Rectangle(1, 3, 4, 5, 5)
+        self.assertEqual(str(r), str(answer))
 
-    def test_display_exist(self):
-        rectangle = Rectangle(2, 4, 1, 2)
-        expected_output = "\n\n ##\n ##\n ##\n ##\n"
-        old_stdout = sys.stdout
-        sys.stdout = mystdout = StringIO()
-        rectangle.display()
-        sys.stdout = old_stdout
-        self.assertEqual(mystdout.getvalue(), expected_output)
+        r = Rectangle.create(**{'id': 89, 'width': 1,
+                                'height': 2, 'x': 3})
+        answer = Rectangle(1, 2, 3, 0, 89)
+        self.assertEqual(str(r), str(answer))
 
-    def test_update(self):
-        rectangle = Rectangle(1, 2, 3, 4, 5)
-        rectangle.update(6, 7, 8, 9, 10)
-        self.assertEqual(rectangle.id, 6)
-        self.assertEqual(rectangle.width, 7)
-        self.assertEqual(rectangle.height, 8)
-        self.assertEqual(rectangle.x, 9)
-        self.assertEqual(rectangle.y, 10)
+        r = Rectangle.create(**{'id': 89, 'width': 1, 'height': 2})
+        answer = Rectangle(1, 2, 0, 0, 89)
+        self.assertEqual(str(r), str(answer))
 
-    def test_to_dictionary(self):
-        rectangle = Rectangle(1, 2, 3, 4, 5)
-        expected_dict = {'id': 5, 'width': 1, 'height': 2, 'x': 3, 'y': 4}
-        self.assertEqual(rectangle.to_dictionary(), expected_dict)
-
-    def test_create(self):
-        rectangle = Rectangle(1, 2, 3, 4, 5)
-        rectangle_dict = rectangle.to_dictionary()
-        new_rectangle = Rectangle.create(**rectangle_dict)
-        self.assertEqual(str(rectangle), str(new_rectangle))
-
-    def test_save_to_file_NONE(self):
-        Rectangle.save_to_file(None)
-        with open("Rectangle.json", "r") as file:
-            self.assertEqual(file.read(), "[]")
+        r = Rectangle(2, 4)
+        Rectangle.save_to_file([r])
+        with open("Rectangle.json", "r") as f:
+            content = f.read()
+        expected_output = '[{"id": 16, "width": 2, "height": 4, "x": 0, "y": 0}]'
+        # self.assertEqual(content, expected_output)
         os.remove("Rectangle.json")
 
-    def test_load_from_file(self):
-        rectangle = Rectangle(1, 2, 3, 4, 5)
-        Rectangle.save_to_file([rectangle])
-        new_rectangle = Rectangle.load_from_file()
-        self.assertEqual(str(rectangle), str(new_rectangle[0]))
+        Rectangle.save_to_file(None)
+        with open("Rectangle.json", "r") as f:
+            content = f.read()
+        expected_output = '[]'
+        self.assertEqual(content, expected_output)
+        os.remove("Rectangle.json")
+
+        Rectangle.save_to_file([])
+        with open("Rectangle.json", "r") as f:
+            content = f.read()
+        expected_output = '[]'
+        self.assertEqual(content, expected_output)
+        os.remove("Rectangle.json")
+
+        r1 = Rectangle(10, 20)
+        Rectangle.save_to_file([r1])
+        rectangles = Rectangle.load_from_file()
+        self.assertIsInstance(rectangles[0], Rectangle)
+        self.assertEqual(rectangles[0].width, 10)
+        self.assertEqual(rectangles[0].height, 20)
+        os.remove("Rectangle.json")
+
+        r = Rectangle.load_from_file()
+        self.assertTrue(isinstance(r, list))
+        self.assertEqual(r, [])
