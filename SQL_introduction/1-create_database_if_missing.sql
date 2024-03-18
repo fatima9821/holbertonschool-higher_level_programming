@@ -1,2 +1,2 @@
 -- script that creates the database hbtn_0c_0 in my sql server
-CREATE DATABASE IF NOT EXISTS hbtn_0c_o;
+CREATE DATABASE IF NOT EXISTS hbtn_0c_0;
