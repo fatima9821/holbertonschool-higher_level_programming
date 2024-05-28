@@ -16,4 +16,4 @@ except Exception:
     list = []
 for argumments in argv[1:]:
     list.append(argumments)
-save(list, filename)i
+save(list, filename)
