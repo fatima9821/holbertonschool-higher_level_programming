@@ -2,22 +2,21 @@
 """
 convertir des donnes CSV en format json
 """
-import json
 import csv
+import json
 
 
-def convertir_csv_en_json(nom_fichier_csv):
+def convertir_csv_en_json(f):
     try:
+        data = []
+        with open(f, 'r', encoding='utf-8') as fc:
 
-        with open(nom_fichier_csv, mode='r', newline='', encoding='utf-8')
-        as fichier_csv:
+            csv_reader = csv.DictReader(fc)
 
-            lecteur_csv = csv.DictReader(fichier_csv)
+            data.append(row)
 
-            donnees = list(lecteur_csv)
-
-        with open('data.json', mode='w', encoding='utf-8') as fichier_json:
-            json.dump(donnees, fichier_json, indent=4)
+        with open('data.json', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(data, indent=4))
 
         return True
 
