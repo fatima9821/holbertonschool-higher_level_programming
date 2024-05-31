@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 """
-convertir des donnes CSV en format json
+convertir des donnes CSV en format js
 """
 import csv
 import json
 
 
-def convertir_csv_en_json(f):
+def convert_csv_to_json(csv_filename):
     try:
-        data = []
-        with open(f, 'r', encoding='utf-8') as fc:
+        with open(csv_filename, mode='r', newline='') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
 
-            csv_reader = csv.DictReader(fc)
+            data_list = [row for row in csv_reader]
 
-            data.append(row)
+        json_data = json.dumps(data_list, indent=4)
 
-        with open('data.json', 'w', encoding='utf-8') as f:
-            f.write(json.dumps(data, indent=4))
+        with open('data.json', mode='w') as json_file:
+            json_file.write(json_data)
 
         return True
-
     except FileNotFoundError:
+        print(f"Error: The file {csv_filename} was not found.")
+        return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
         return False
