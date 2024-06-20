@@ -1,2 +1,2 @@
 -- scritp that delete a database
-DELETE IF NOT EXISTS hbtn_0c_0;
+DROP IF NOT EXISTS hbtn_0c_0;
