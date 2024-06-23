@@ -1,30 +1,36 @@
 #!/usr/bin/python3
 import MySQLdb
 import sys
-from sys import argv
 
 
-if __name__ == '__main__':
-    """
-    Access the database and get the states
-    from the database.
-    """
-    # Connexion à la base de données
-    db = MySQLdb.connect(host="localhost", user=argv[1], port=3306,
-                         passwd=argv[2], db=argv[3])
+if __name__ == "__main__":
+    # Database connection parameters
+    username = sys.argv[1]
+    password = sys.argv[2]
+    database = sys.argv[3]
 
-    # Créaton of curseur to execute the  SQL
-    cur = db.cursor()
+    # Connect to MySQL server
+    db = MySQLdb.connect(
+        host="localhost",
+        port=3306,
+        user=username,
+        passwd=password,
+        db=database
+    )
 
-    cur.execute("SELECT * FROM states ORDER BY id ASC")
+    # Create cursor
+    cursor = db.cursor()
 
-    # get the result
-    rows = cur.fetchall()
+    # Execute query to get all states
+    cursor.execute("SELECT * FROM states ORDER BY id")
 
-    # display the result
-    for row in rows:
+    # Fetch all results
+    results = cursor.fetchall()
+
+    # Print results
+    for row in results:
         print(row)
 
-    # close the curseur to data base connected
-    cur.close()
+    # Close cursor and database connection
+    cursor.close()
     db.close()
