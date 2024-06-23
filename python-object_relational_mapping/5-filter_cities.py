@@ -1,39 +1,41 @@
 #!/usr/bin/python3
-"""Lists all cities of a specific state from the database hbtn_0e_4_usa"""
+"""
+This script  takes in the name of a state
+as an argument and lists all cities of that
+state, using the database `hbtn_0e_4_usa`.
+"""
 
 import MySQLdb
-import sys
+from sys import argv
 
-if __name__ == "__main__":
-    # Database connection parameters
-    username = sys.argv[1]
-    password = sys.argv[2]
-    db_name = sys.argv[3]
-    state_name = sys.argv[4]
+if __name__ == '__main__':
+    """
+    Access to the database and get the cities
+    from the database.
+    """
 
-    # Connect to MySQL database
-    db = MySQLdb.connect(
-        host='localhost',
-        port=3306,
-        user=username,
-        passwd=password,
-        db=db_name,
-        charset='utf8'
-    )
+    db = MySQLdb.connect(host="localhost", user=argv[1], port=3306,
+                         passwd=argv[2], db=argv[3])
 
-    # Create a cursor object using cursor() method
-    cursor = db.cursor()
+    with db.cursor() as cur:
+        cur.execute("""
+            SELECT
+                cities.id, cities.name
+            FROM
+                cities
+            JOIN
+                states
+            ON
+                cities.state_id = states.id
+            WHERE
+                states.name LIKE BINARY %(state_name)s
+            ORDER BY
+                cities.id ASC
+        """, {
+            'state_name': argv[4]
+        })
 
-    # Prepare SQL query to select cities of the given state
-    sql_query = "SELECT cities.id, cities.name, states.name \
-            FROM cities JOIN states ON cities.state_id = states.id \
-            WHERE states.name = '{}';".format(state_name)
+        rows = cur.fetchall()
 
-    # Execute the SQL command
-    cursor.execute(sql_query)
-
-    # Fetch the result
-    results = cursor.fetchall()
-
-    # Print the result
-    print("{}".format(", ".join([row[1] for row in results])))
+    if rows is not None:
+        print(", ".join([row[1] for row in rows]))
