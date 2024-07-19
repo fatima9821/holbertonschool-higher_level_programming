@@ -17,15 +17,10 @@ def contact():
 
 @app.route('/items')
 def items():
-    try:
-        with open('items.json') as f:
-            data = json.load(f)
-            items_list = data.get('items', [])
-    except Exception as e:
-        print(f"Error reading items.json: {e}")
-        items_list = []
-    return render_template('items.html', items=items_list)
+    with open('items.json') as f:
+        data = json.load(f)
+    items = data.get("items", [])
+    return render_template('items.html', items=items)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
-
+    app.run(debug=True, port=5000)

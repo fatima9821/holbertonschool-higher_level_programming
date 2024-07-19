@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request
 import json
 import csv
 
@@ -21,31 +21,21 @@ def read_csv_file(filepath):
 @app.route('/products')
 def products():
     source = request.args.get('source')
-    product_id = request.args.get('id')
-    products = []
-    error = None
-
+    product_id = request.args.get('id', type=int)
+    
     if source == 'json':
-        try:
-            products = read_json_file('products.json')
-        except Exception as e:
-            error = f"Error reading JSON file: {e}"
+        products = read_json_file('products.json')
     elif source == 'csv':
-        try:
-            products = read_csv_file('products.csv')
-        except Exception as e:
-            error = f"Error reading CSV file: {e}"
+        products = read_csv_file('products.csv')
     else:
-        error = "Wrong source"
-
-    if not error and product_id:
-        product_id = int(product_id)
-        products = [p for p in products if p['id'] == product_id]
+        return render_template('product_display.html', error="Wrong source")
+    
+    if product_id:
+        products = [product for product in products if product['id'] == product_id]
         if not products:
-            error = "Product not found"
-
-    return render_template('product_display.html', products=products, error=error)
+            return render_template('product_display.html', error="Product not found")
+    
+    return render_template('product_display.html', products=products)
 
 if __name__ == '__main__':
-    app.run
-
+    app.run(debug=True, port=5000)
